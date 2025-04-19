@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import { Connection, Environment } from "./src/config/index.js";
-import { errorJson, errorHandler } from "./src/middleware/index.js";
+import { ErrorMiddleware } from "./src/middleware/index.js";
 import { users, auth } from "./src/routes/index.js";
 
 const app = express();
@@ -53,8 +53,9 @@ app.use("/api/v1", auth, users);
  * and return a json response with the error message and status code
  * The error middleware will also log the error message and status code to the console
  */
-app.use(errorJson);
-app.use(errorHandler);
+const errorMiddleware = new ErrorMiddleware();
+app.use(errorMiddleware.errorJson.bind(errorMiddleware));
+app.use(errorMiddleware.errorHandler.bind(errorMiddleware));
 /**
  * Catch all non existing routes
  */
