@@ -13,7 +13,7 @@ const usersDetailsService = new UserDetailsService(UserDetails);
 const usersService = new UserService(User, UserDetails);
 const usersController = new UserController(usersService, usersDetailsService);
 
-const tokenMiddleware = new TokenMiddleware(new JWTMiddleware());
+const tokenMiddleware = new TokenMiddleware(new JWTMiddleware(), User);
 
 const router = express.Router();
 
