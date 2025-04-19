@@ -1,8 +1,9 @@
 import { ErrorHandler } from "../utils/index.js";
 
 export class TokenMiddleware {
-  constructor(JWTMiddleware) {
+  constructor(JWTMiddleware, UserModel) {
     this.JwtMiddleware = JWTMiddleware;
+    this.userModel = UserModel;
   }
 
   async verifyAccessToken(req, res, next) {
@@ -24,6 +25,19 @@ export class TokenMiddleware {
       }
 
       /**
+       * Find the user associated with the token in the database
+       * The user ID is extracted from the decoded token data
+       */
+      const user = await this.userModel.findById(decoded?.user?._id);
+
+      /**
+       * If the user is not found, return an error response with status code 401 (Unauthorized)
+       * This indicates that the token is not valid or the user does not exist
+       */
+      if (!user) {
+        return next(new ErrorHandler(401, "Unauthorized"));
+      }
+      /**
        * Attach the decoded token data to the request object
        * This allows subsequent middleware or route handlers to access the user information
        * from the token
@@ -36,5 +50,19 @@ export class TokenMiddleware {
        */
       return next(new ErrorHandler(401, "Unauthorized"));
     }
+  }
+
+  userRole(...roles) {
+    return async (req, res, next) => {
+      try {
+        const token = req?.headers["authorization"].split(" ")[1];
+
+        const decoded = this.JwtMiddleware.ValidateToken(token);
+        console.log(decoded);
+        next();
+      } catch (err) {
+        return next(new ErrorHandler(401, "Unauthorized"));
+      }
+    };
   }
 }
