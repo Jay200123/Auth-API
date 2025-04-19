@@ -51,11 +51,6 @@ export class TokenMiddleware {
       if (!user) {
         return next(new ErrorHandler(401, "Unauthorized"));
       }
-      /**
-       * Attach the decoded token data to the request object
-       * This allows subsequent middleware or route handlers to access the user information
-       * from the token
-       */
       next();
     } catch (err) {
       /**
