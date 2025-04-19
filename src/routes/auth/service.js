@@ -2,8 +2,9 @@ import { ErrorHandler } from "../../utils/index.js";
 import bcrypt from "bcryptjs";
 
 export class AuthService {
-  constructor(UserModel, JwtMiddlware) {
+  constructor(UserModel, TokenModel, JwtMiddlware) {
     this.userModel = UserModel;
+    this.tokenModel = TokenModel;
     this.jwt = JwtMiddlware;
   }
   async login(email, password) {
@@ -33,10 +34,26 @@ export class AuthService {
       throw new ErrorHandler(401, "Invalid credentials");
     }
 
+    /**
+     * Generate a JWT token using the user data
+     * and store it in the database
+     */
     const token = this.jwt.GenerateToken({ user });
 
+    /**
+     * Mongoose query for inserting the token into the database
+     * The token is stored in the database for future reference
+     */
+    await this.tokenModel.create({
+      access_token: token,
+    });
+
+    /**
+     * The token is sent back to the client
+     * along with the user data
+     */
     const data = {
-     user: user,
+      user: user,
       access: token,
     };
 
