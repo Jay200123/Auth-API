@@ -1,4 +1,3 @@
-import { decode } from "jsonwebtoken";
 import { ErrorHandler } from "../utils/index.js";
 
 export class TokenMiddleware {
@@ -51,21 +50,5 @@ export class TokenMiddleware {
        */
       return next(new ErrorHandler(401, "Unauthorized"));
     }
-  }
-
-  userRole(...roles) {
-    return async (req, res, next) => {
-      try {
-        const token = req?.headers["authorization"].split(" ")[1];
-
-        const decoded = this.JwtMiddleware.ValidateToken(token);
-        if (!roles?.includes(decoded?.user?.roles)) {
-          return next(new ErrorHandler(401, "Unauthorized"));
-        }
-        next();
-      } catch (err) {
-        return next(new ErrorHandler(401, "Unauthorized"));
-      }
-    };
   }
 }
