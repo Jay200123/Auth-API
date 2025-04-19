@@ -1,6 +1,7 @@
 import express from "express";
 import User from "./model.js";
 import UserDetails from "../user_details/model.js";
+import Token from "../auth/model.js";
 import { UserDetailsService } from "../user_details/service.js";
 import { UserService } from "./service.js";
 import { UserController } from "./controller.js";
@@ -17,7 +18,7 @@ const usersDetailsService = new UserDetailsService(UserDetails);
 const usersService = new UserService(User, UserDetails);
 const usersController = new UserController(usersService, usersDetailsService);
 
-const tokenMiddleware = new TokenMiddleware(new JWTMiddleware(), User);
+const tokenMiddleware = new TokenMiddleware(new JWTMiddleware(), User, Token);
 const roleMiddleware = new RoleMiddleware();
 
 const router = express.Router();
