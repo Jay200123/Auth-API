@@ -1,9 +1,10 @@
 import { ErrorHandler } from "../utils/index.js";
 
 export class TokenMiddleware {
-  constructor(JWTMiddleware, UserModel) {
+  constructor(JWTMiddleware, UserModel, TokenModel) {
     this.JwtMiddleware = JWTMiddleware;
     this.userModel = UserModel;
+    this.tokenModel = TokenModel;
   }
 
   async verifyAccessToken(req, res, next) {
@@ -13,6 +14,19 @@ export class TokenMiddleware {
        * The token is expected to be in the format "Bearer
        */
       const token = req?.headers["authorization"].split(" ")[1];
+
+      /**
+       * If the token is not present in the database,
+       * return an error response with status code 401 (Unauthorized)
+       * This indicates that the token is not valid or has expired
+       */
+      const accessToken = await this.tokenModel.findOne({
+        access_token: token,
+      });
+
+      if (!accessToken) {
+        return next(new ErrorHandler(401, "Unauthorized"));
+      }
 
       /**
        * Validate the token using the JWT middleware
