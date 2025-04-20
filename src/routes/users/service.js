@@ -18,26 +18,6 @@ export class UserService {
       select: "email password",
     });
   }
-  async add(data) {
-    const { email, password } = data;
-
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
-
-    if (!regex.test(password)) {
-      throw new ErrorHandler(
-        400,
-        "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
-      );
-    }
-
-    const hash = new Hash();
-    const hashedPassword = await hash.hashPassword(password);
-
-    return await this.model.create({
-      email: email,
-      password: hashedPassword,
-    });
-  }
 
 
   async updateById(id, data) {
