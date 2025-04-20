@@ -1,12 +1,50 @@
 import { ErrorHandler } from "../../utils/index.js";
+import { Hash } from "../../utils/index.js";
 import bcrypt from "bcryptjs";
 
 export class AuthService {
-  constructor(UserModel, TokenModel, JwtMiddlware) {
+  constructor(UserModel, UserDetailsModel, TokenModel, JwtMiddlware) {
     this.userModel = UserModel;
+    this.userDetailsModel = UserDetailsModel;
     this.tokenModel = TokenModel;
     this.jwt = JwtMiddlware;
   }
+
+  async add(data) {
+    const { email, password } = data;
+
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+
+    if (!regex.test(password)) {
+      throw new ErrorHandler(
+        400,
+        "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
+      );
+    }
+
+    const hash = new Hash();
+    const hashedPassword = await hash.hashPassword(password);
+
+    const user = await this.userModel.create({
+      email: email,
+      password: hashedPassword,
+    });
+
+    const userDetails = await this.userDetailsModel.create({
+      user: user._id,
+      first_name: data.first_name,
+      last_name: data.last_name,
+      phone_number: data.phone_number,
+      address: data.address,
+      city: data.city,
+    });
+
+    return {
+      user: user,
+      user_details: userDetails,
+    };
+  }
+
   async login(email, password) {
     /**
      * Check if the email sent in the request exists in the database
@@ -52,12 +90,11 @@ export class AuthService {
      * The token is sent back to the client
      * along with the user data
      */
-    const data = {
+
+    return {
       user: user,
       access: token,
     };
-
-    return data;
   }
 
   async logout(token) {}
