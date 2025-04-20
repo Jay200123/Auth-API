@@ -1,12 +1,72 @@
 import { ErrorHandler, SuccessHandler } from "../../utils/index.js";
-import { loginValidation } from "../../validations/index.js";
+import {
+  registerUserValidation,
+  loginValidation,
+} from "../../validations/index.js";
 import { validationResult } from "express-validator";
 
 export class AuthController {
   constructor(authService) {
     this.authService = authService;
   }
-  
+  /**
+   *
+   * @param {*} req
+   * @param {*} res
+   * @param {*} next
+   * @returns
+   * This method creates a new user in the database.
+   * It validates the user input using express-validator.
+   * If validation fails, it returns a 422 error with the validation errors.
+   * If validation passes, it inserts the user details into the database.
+   * If the user is successfully created, it returns a 201 response with the user data.
+   */
+  async registerUser(req, res, next) {
+    console.log(req.body);
+    /**
+     * Validate user input
+     * If validation fails, return an error response with status code 422
+     */
+    await registerUserValidation(req);
+
+    /**
+     * Check if there are any validation errors
+     * If there are errors, return an error response with status code 422
+     * The errors are passed to the next middleware (error handler)
+     */
+    const errors = validationResult(req);
+
+    /**
+     * Map the errors into a more readable format
+     * Each error contains a message and the path (field) that caused the error
+     */
+    const requiredFields = errors.array().map((err) => {
+      return {
+        message: err.msg,
+        path: err.path,
+      };
+    });
+
+    /**
+     * If there are validation errors, return an error response
+     * with status code 422 and the required fields
+     */
+    if (!errors.isEmpty()) {
+      return next(new ErrorHandler(422, requiredFields));
+    }
+
+    /**
+     * Insert users and user details into the database
+     * The userService.add method is called to insert the user details into the database
+     */
+    // const result = await this.authService.add(req.body);
+
+    /**
+     * Return success response with status code 201
+     */
+    return SuccessHandler(res, 201, "test", "Success");
+  }
+
   async login(req, res, next) {
     await loginValidation(req);
 
