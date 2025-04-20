@@ -37,11 +37,11 @@ export class RoleMiddleware extends TokenMiddleware {
          *  return an error.
          */
         if (!roles?.includes(decoded?.user?.roles)) {
-          return next(new ErrorHandler(401, "Unauthorized"));
+          return next(new ErrorHandler(403, "Forbidden"));
         }
         next();
       } catch (err) {
-        return next(new ErrorHandler(401, "Unauthorized"));
+        return next(new ErrorHandler(403, "Forbidden"));
       }
     };
   }
