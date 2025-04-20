@@ -32,8 +32,16 @@ const usersService = new UserService(User, UserDetails);
 
 /**
  * Create a new instance of user Controller referring to the UserService and UserDetailsService.
+ * This controller will handle the business logic for user management.
+ * It uses the UserValidation class for validating user input.
+ * The UserValidation class is responsible for validating user data before it is processed by the controller.
+ * It ensures that the data meets the required format and constraints.
+ * The controller methods are bound to the instance of the controller to maintain the correct context when they are called.
  */
-const usersController = new UserController(usersService, usersDetailsService);
+const usersController = new UserController(
+  usersService,
+  usersDetailsService,
+);
 
 /**
  * Create a new instance of TokenMiddleware referring to the JWTMiddleware, User model and Token model.
@@ -73,13 +81,6 @@ const userRoutes = [
     role: ["Admin"],
     middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
     handler: usersController.getOneUser.bind(usersController),
-  },
-  {
-    method: "post",
-    path: "/user/create",
-    role: ["Admin"],
-    middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
-    handler: usersController.createUser.bind(usersController),
   },
   {
     method: "patch",
