@@ -5,6 +5,7 @@ import { AuthService } from "./service.js";
 import { JWTMiddleware } from "../../middleware/index.js";
 import { AuthController } from "./controller.js";
 import express from "express";
+import { METHOD, PATH } from "../../constants/index.js";
 
 const router = express.Router();
 
@@ -14,20 +15,23 @@ const authService = new AuthService(
   Token,
   new JWTMiddleware()
 );
-const authController = new AuthController(
-  authService,
-);
+const authController = new AuthController(authService);
 
 const authRoutes = [
   {
-    method: "post",
-    path: "/register",
+    method: METHOD.GET,
+    path: PATH.REGISTER,
     handler: authController.registerUser.bind(authController),
   },
   {
-    method: "post",
-    path: "/login",
+    method: METHOD.POST,
+    path: PATH.LOGIN,
     handler: authController.login.bind(authController),
+  },
+  {
+    method: METHOD.POST,
+    path: PATH.LOGOUT,
+    handler: authController.logout.bind(authController),
   },
 ];
 
