@@ -35,7 +35,7 @@ export class TokenMiddleware {
        */
       const decoded = this.JwtMiddleware.ValidateToken(token);
       if (!decoded) {
-        return next(new ErrorHandler(401, "Unauthorized"));
+        return next(new ErrorHandler(401, "Token Expired"));
       }
 
       /**
