@@ -102,5 +102,14 @@ export class AuthService {
     };
   }
 
-  async logout(token) {}
+  async logout(token) {
+    /**
+     * Mongoose query for deleting the token from the database
+     * The token is deleted from the database to log the user out
+     */
+
+    return await this.tokenModel.findOneAndDelete({
+      access_token: token,
+    });
+  }
 }
