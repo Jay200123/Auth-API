@@ -1,3 +1,4 @@
+import { STATUSCODE } from "../../constants/statusCode.js";
 import { ErrorHandler } from "../../utils/index.js";
 import { Hash } from "../../utils/index.js";
 import bcrypt from "bcryptjs";
@@ -84,11 +85,22 @@ export class AuthService {
     const token = this.jwt.GenerateToken({ user });
 
     /**
+     * Generate a refresh token using token and user id as payload.
+     * The refresh token is used to generate a new access token
+     * when the access token expires
+     */
+    const refresh_token = this.jwt.GenerateRefreshToken({
+      token: token,
+      _id: user?._id,
+    });
+
+    /**
      * Mongoose query for inserting the token into the database
      * The token is stored in the database for future reference
      */
     await this.tokenModel.create({
       access_token: token,
+      refresh_token: refresh_token,
     });
 
     /**
@@ -99,6 +111,61 @@ export class AuthService {
     return {
       user: user,
       access: token,
+      refresh_token: refresh_token,
+    };
+  }
+
+  async refreshAccessToken(refresh_token) {
+    //Check if the refresh token exists in the database
+    const refreshToken = await this.tokenModel.findOne({
+      refresh_token: refresh_token,
+    });
+
+    //If the refresh token does not exist, throw an error
+    if (!refreshToken) {
+      throw new ErrorHandler(STATUSCODE.UNAUTHORIZED, "Invalid refresh token");
+    }
+
+    //Check if the refresh token is expired
+    const decodedRefreshToken = this.jwt.ValidateToken(refresh_token);
+
+    //If the refresh token is expired, throw an error
+    if (!decodedRefreshToken) {
+      throw new ErrorHandler(STATUSCODE.UNAUTHORIZED, "Refresh Token Expired");
+    }
+
+    //Fetch the user from the database using the user id from the refresh token
+    const user = await this.userModel.findById(decodedRefreshToken._id);
+
+    //If the user does not exist, throw an error
+    if (!user) {
+      throw new ErrorHandler(STATUSCODE.UNAUTHORIZED, "User not found");
+    }
+
+    //Generate a new access token and refresh token using the user data
+    const newAccessToken = this.jwt.GenerateToken({ user });
+
+    //Generate a new refresh token using the new access token and user id as payload
+    //The refresh token is used to generate a new access token when the access token expires
+    const newRefreshToken = this.jwt.GenerateRefreshToken({
+      token: token,
+      _id: user?._id,
+    });
+
+    //Update the token in the database with the new access token and refresh token
+    //The token is updated in the database for future reference
+    await this.tokenModel.findOneAndUpdate(
+      { refresh_token: refresh_token },
+      {
+        access_token: newAccessToken,
+        refresh_token: newRefreshToken,
+      },
+      { new: true }
+    );
+
+    return {
+      access_token: newAccessToken,
+      refresh_token: newRefreshToken,
     };
   }
 
