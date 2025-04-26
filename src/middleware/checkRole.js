@@ -1,5 +1,6 @@
 import { TokenMiddleware } from "./verifyJwt.js";
 import { JWTMiddleware } from "./jwt.js";
+import { ErrorHandler } from "../utils/index.js";
 
 export class RoleMiddleware extends TokenMiddleware {
   /**
@@ -36,7 +37,7 @@ export class RoleMiddleware extends TokenMiddleware {
          * If the user does not have the required role,
          *  return an error.
          */
-        if (!roles?.includes(decoded?.user?.roles)) {
+        if (!roles?.includes(decoded?.user?.role)) {
           return next(new ErrorHandler(403, "Forbidden"));
         }
         next();
