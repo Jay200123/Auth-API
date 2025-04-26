@@ -22,7 +22,7 @@ export class AuthController {
    * If the user is successfully created, it returns a 201 response with the user data.
    */
   async registerUser(req, res, next) {
-    console.log(req.body);
+
     /**
      * Validate user input
      * If validation fails, return an error response with status code 422
@@ -59,12 +59,12 @@ export class AuthController {
      * Insert users and user details into the database
      * The userService.add method is called to insert the user details into the database
      */
-    // const result = await this.authService.add(req.body);
+    const result = await this.authService.add(req.body);
 
     /**
      * Return success response with status code 201
      */
-    return SuccessHandler(res, 201, "test", "Success");
+    return SuccessHandler(res, 201, result, "Success");
   }
 
   async login(req, res, next) {
