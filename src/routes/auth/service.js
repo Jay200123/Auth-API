@@ -11,11 +11,15 @@ export class AuthService {
   }
 
   async add(data) {
-    const { email, password } = data;
+    const emailExists = await this.userModel.findOne({ email: data?.email });
+
+    if (emailExists) {
+      throw new ErrorHandler(409, "Email already exists");
+    }
 
     const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
 
-    if (!regex.test(password)) {
+    if (!regex.test(data.password)) {
       throw new ErrorHandler(
         400,
         "Password must be at least 6 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character."
@@ -23,11 +27,12 @@ export class AuthService {
     }
 
     const hash = new Hash();
-    const hashedPassword = await hash.hashPassword(password);
+    const hashedPassword = await hash.hashPassword(data.password);
 
     const user = await this.userModel.create({
-      email: email,
+      email: data.email,
       password: hashedPassword,
+      role: data.role,
     });
 
     const userDetails = await this.userDetailsModel.create({
