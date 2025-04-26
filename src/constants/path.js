@@ -6,4 +6,5 @@ export const PATH = {
   REGISTER: "/register",  
   LOGIN: "/login",
   LOGOUT: "/logout",
+  REFRESH_TOKEN:"/refresh/token"
 };
