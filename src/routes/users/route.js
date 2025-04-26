@@ -2,7 +2,6 @@ import express from "express";
 import User from "./model.js";
 import UserDetails from "../user_details/model.js";
 import Token from "../auth/model.js";
-import { UserDetailsService } from "../user_details/service.js";
 import { UserService } from "./service.js";
 import { UserController } from "./controller.js";
 import {
@@ -23,10 +22,6 @@ import { METHOD, PATH, ROLE } from "../../constants/index.js";
  */
 
 /**
- * Create a new instance of userDetail Service referring to the UserDetails model.
- */
-const usersDetailsService = new UserDetailsService(UserDetails);
-/**
  * Create a new instance of user Service referring to the User model and UserDetails model.
  */
 const usersService = new UserService(User, UserDetails);
@@ -39,7 +34,7 @@ const usersService = new UserService(User, UserDetails);
  * It ensures that the data meets the required format and constraints.
  * The controller methods are bound to the instance of the controller to maintain the correct context when they are called.
  */
-const usersController = new UserController(usersService, usersDetailsService);
+const usersController = new UserController(usersService);
 
 /**
  * Create a new instance of TokenMiddleware referring to the JWTMiddleware, User model and Token model.
