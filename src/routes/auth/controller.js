@@ -95,6 +95,18 @@ export class AuthController {
     return SuccessHandler(res, STATUSCODE.OK, data, "Login Successfully");
   }
 
+  async refreshToken(req, res, next) {
+    const token = req?.headers["authorization"]?.split(" ")[1];
+
+    if (!token) {
+      return next(new ErrorHandler(STATUSCODE.UNAUTHORIZED, "Unauthorized"));
+    }
+
+    const result = await this.authService.refreshToken(token);
+
+    return SuccessHandler(res, STATUSCODE.OK, result, "Token Refreshed");
+  }
+
   async logout(req, res, next) {
     const token = req?.headers["authorization"]?.split(" ")[1];
 
