@@ -4,6 +4,7 @@ import {
   loginValidation,
 } from "../../validations/index.js";
 import { validationResult } from "express-validator";
+import { STATUSCODE } from "../../constants/index.js";
 
 export class AuthController {
   constructor(authService) {
@@ -22,7 +23,6 @@ export class AuthController {
    * If the user is successfully created, it returns a 201 response with the user data.
    */
   async registerUser(req, res, next) {
-
     /**
      * Validate user input
      * If validation fails, return an error response with status code 422
@@ -52,7 +52,9 @@ export class AuthController {
      * with status code 422 and the required fields
      */
     if (!errors.isEmpty()) {
-      return next(new ErrorHandler(422, requiredFields));
+      return next(
+        new ErrorHandler(STATUSCODE.UNPROCESSABLE_ENTITY, requiredFields)
+      );
     }
 
     /**
@@ -64,7 +66,7 @@ export class AuthController {
     /**
      * Return success response with status code 201
      */
-    return SuccessHandler(res, 201, result, "Success");
+    return SuccessHandler(res, STATUSCODE.CREATED, result, "Success");
   }
 
   async login(req, res, next) {
@@ -80,7 +82,9 @@ export class AuthController {
     });
 
     if (!errors.isEmpty()) {
-      return next(new ErrorHandler(422, requiredFields));
+      return next(
+        new ErrorHandler(STATUSCODE.UNPROCESSABLE_ENTITY, requiredFields)
+      );
     }
 
     const data = await this.authService.login(
@@ -88,8 +92,18 @@ export class AuthController {
       req.body.password
     );
 
-    return SuccessHandler(res, 200, data, "Login Successfully");
+    return SuccessHandler(res, STATUSCODE.OK, data, "Login Successfully");
   }
 
-  async logout(req, res, next) {}
+  async logout(req, res, next) {
+    const token = req?.headers["authorization"]?.split(" ")[1];
+
+    if (!token) {
+      return next(new ErrorHandler(STATUSCODE.UNAUTHORIZED, "Unauthorized"));
+    }
+
+    const result = await this.authService.logout(token);
+
+    return SuccessHandler(res, STATUSCODE.OK, result, "Logout Successfully");
+  }
 }
