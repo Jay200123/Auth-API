@@ -7,6 +7,12 @@ export class JWTMiddleware {
     });
   }
 
+  GenerateRefreshToken(payload) {
+    return jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_REFRESH_EXPIRES,
+    });
+  }
+
   ValidateToken(token) {
     return jwt.verify(token, process.env.JWT_SECRET);
   }
