@@ -10,6 +10,7 @@ import {
   TokenMiddleware,
   RoleMiddleware,
 } from "../../middleware/index.js";
+import { METHOD, PATH, ROLE } from "../../constants/index.js";
 
 /**
  * Dependency Injection
@@ -38,10 +39,7 @@ const usersService = new UserService(User, UserDetails);
  * It ensures that the data meets the required format and constraints.
  * The controller methods are bound to the instance of the controller to maintain the correct context when they are called.
  */
-const usersController = new UserController(
-  usersService,
-  usersDetailsService,
-);
+const usersController = new UserController(usersService, usersDetailsService);
 
 /**
  * Create a new instance of TokenMiddleware referring to the JWTMiddleware, User model and Token model.
@@ -69,30 +67,30 @@ const router = express.Router();
  */
 const userRoutes = [
   {
-    method: "get",
-    path: "/users/all",
-    role: ["Admin"],
+    method: METHOD.GET,
+    path: PATH.ALL_USERS,
+    role: ROLE.ADMIN,
     middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
     handler: usersController.getAllUsers.bind(usersController),
   },
   {
-    method: "get",
-    path: "/user/:id",
-    role: ["Admin"],
+    method: METHOD.GET,
+    path: PATH.ONE_USER,
+    role: ROLE.ADMIN,
     middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
     handler: usersController.getOneUser.bind(usersController),
   },
   {
-    method: "patch",
-    path: "/user/edit/:id",
-    role: ["Admin"],
+    method: METHOD.PATCH,
+    path: PATH.UPDATE_USER,
+    role: ROLE.ADMIN,
     middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
     handler: usersController.updateUser.bind(usersController),
   },
   {
-    method: "delete",
-    path: "/user/delete/:id",
-    role: ["Admin"],
+    method: METHOD.DELETE,
+    path: PATH.DELETE_USER,
+    role: ROLE.ADMIN,
     middleware: tokenMiddleware.verifyAccessToken.bind(tokenMiddleware),
     handler: usersController.deleteUser.bind(usersController),
   },
