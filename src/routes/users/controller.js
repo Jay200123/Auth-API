@@ -1,16 +1,16 @@
 import { SuccessHandler, ErrorHandler } from "../../utils/index.js";
 import { editUserValidation } from "../../validations/index.js";
 import { validationResult } from "express-validator";
+import { STATUSCODE } from "../../constants/index.js";
 /**
  * UserController class handles user-related operations
  * such as retrieving, creating, updating, and deleting users.
- * It uses the userService and userDetailsService to perform these operations.
+ * It uses the userService to perform these operations.
  * The class methods handle incoming requests and send appropriate responses.
  */
 export class UserController {
-  constructor(userService, userDetailsService) {
+  constructor(userService) {
     this.userService = userService;
-    this.userDetailsService = userDetailsService;
   }
 
   /**
@@ -28,8 +28,13 @@ export class UserController {
     const result = await this.userService.getAll();
 
     return result?.length === 0
-      ? next(new ErrorHandler(404, "No users found"))
-      : SuccessHandler(res, 200, result, "Users retrieved successfully");
+      ? next(new ErrorHandler(STATUSCODE.NOT_FOUND, "No users found"))
+      : SuccessHandler(
+          res,
+          STATUSCODE.OK,
+          result,
+          "Users retrieved successfully"
+        );
   }
   /**
    *
@@ -45,8 +50,8 @@ export class UserController {
   async getOneUser(req, res, next) {
     const result = await this.userService.getById(req.params.id);
     return result?.length === 0
-      ? next(new ErrorHandler(404, "User not found"))
-      : SuccessHandler(res, 200, result, "Success");
+      ? next(new ErrorHandler(STATUSCODE.NOT_FOUND, "User not found"))
+      : SuccessHandler(res, STATUSCODE.OK, result, "Success");
   }
 
   /**
@@ -100,7 +105,9 @@ export class UserController {
      * with status code 422 and the required fields
      */
     if (!errors.isEmpty()) {
-      return next(new ErrorHandler(422, requiredFields));
+      return next(
+        new ErrorHandler(STATUSCODE.UNPROCESSABLE_ENTITY, requiredFields)
+      );
     }
     /**
      * Check if the user data exists by ID
@@ -112,7 +119,7 @@ export class UserController {
      * return an error response with status code 404
      */
     if (user.length === 0) {
-      return next(new ErrorHandler(404, "User not found"));
+      return next(new ErrorHandler(STATUSCODE.NOT_FOUND, "User not found"));
     }
 
     /**
@@ -127,7 +134,7 @@ export class UserController {
      * If the user details are successfully updated,
      * return a success response with status code 200
      */
-    return SuccessHandler(res, 200, data, "Success");
+    return SuccessHandler(res, STATUSCODE.OK, data, "Success");
   }
 
   /**
@@ -143,6 +150,11 @@ export class UserController {
    */
   async deleteUser(req, res, next) {
     const result = await this.userService.deleteById(req.params.id);
-    return SuccessHandler(res, 200, result, "User deleted successfully");
+    return SuccessHandler(
+      res,
+      STATUSCODE.OK,
+      result,
+      "User deleted successfully"
+    );
   }
 }
