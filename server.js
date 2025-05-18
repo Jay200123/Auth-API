@@ -1,6 +1,13 @@
 import express from "express";
 import mongoose from "mongoose";
-import { Connection, Environment } from "./src/config/index.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import {
+  Connection,
+  Environment,
+  allowedOrigins,
+  CORS,
+} from "./src/config/index.js";
 import { ErrorMiddleware } from "./src/middleware/index.js";
 import { users, auth } from "./src/routes/index.js";
 
@@ -30,6 +37,29 @@ connection.connect();
  * This middleware is used to parse the request body as json and make it available in the req.body object
  */
 app.use(express.json());
+
+/**
+ * Cookie parser middleware
+ * This middleware is used to parse the cookies in the request
+ * It will make the cookies available in the req.cookies object
+ * This middleware is used to parse the cookies in the request
+ */
+app.use(cookieParser());
+/**
+ * CORS middleware
+ * This middleware is used to enable CORS for the application
+ * It will allow cross-origin requests from the specified origins
+ * The allowed origins are specified in the allowedOrigins array
+ */
+app.use(cors(new CORS(allowedOrigins).corsOptions));
+
+/**
+ * URL encoded middleware
+ * This middleware is used to parse the request body as url encoded
+ * It will make the request body available in the req.body object
+ * The extended option is set to true to allow for rich objects and arrays to be encoded into the URL-encoded format
+ */
+app.use(express.urlencoded({ extended: true }));
 
 /**
  * Default index route
