@@ -4,11 +4,11 @@ import { Hash } from "../../utils/index.js";
 import bcrypt from "bcryptjs";
 
 export class AuthService {
-  constructor(UserModel, UserDetailsModel, TokenModel, JwtMiddlware) {
+  constructor(UserModel, UserDetailsModel, TokenModel, JwtMiddleware) {
     this.userModel = UserModel;
     this.userDetailsModel = UserDetailsModel;
     this.tokenModel = TokenModel;
-    this.jwt = JwtMiddlware;
+    this.jwt = JwtMiddleware;
   }
 
   async add(data) {
