@@ -10,7 +10,7 @@ export class ErrorHandler extends Error {
 export const SuccessHandler = (res, statusCode, data, message) => {
   return res.status(statusCode).json({
     status: statusCode,
-    data: data,
+    details: data,
     message: message,
   });
 };
