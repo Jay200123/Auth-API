@@ -20,8 +20,6 @@ const authService = new AuthService(
   new JWTMiddleware()
 );
 const authController = new AuthController(authService);
-const tokenMiddleware = new TokenMiddleware(new JWTMiddleware(), User, Token);
-const roleMiddleware = new RoleMiddleware();
 
 const authRoutes = [
   {
@@ -42,7 +40,7 @@ const authRoutes = [
     method: METHOD.GET,
     path: PATH.REFRESH_TOKEN,
     role: [ROLE.ADMIN, ROLE.USER],
-    middleware: [tokenMiddleware.verifyAccessToken.bind(tokenMiddleware)],
+    middleware: [],
     handler: authController.refreshToken.bind(authController),
   },
   {
@@ -55,8 +53,8 @@ const authRoutes = [
 ];
 
 authRoutes.forEach((route) => {
-  const { method, path, role = [], middleware = [], handler } = route;
-  router[method](path, middleware, roleMiddleware.userRole(...role), handler);
+  const { method, path, handler } = route;
+  router[method](path, handler);
 });
 
 export default router;
